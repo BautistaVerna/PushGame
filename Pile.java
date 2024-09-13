@@ -1,40 +1,32 @@
+import java.util.Collections;
+import java.util.Stack;
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.List;
 
 public class Pile {
-    ArrayList<Card> cards;
+    private Stack<Card> cards;
 
     public Pile() {
-        cards = new ArrayList<>();
+        cards = new Stack<>();
+        initializePile();
     }
 
-    public void addCard(Card card) {
-        cards.add(card);
-    }
-
-    public int calculatePoints() {
-        int points = 0;
-        for (Card card : cards) {
-            points += card.value;
-        }
-        return points;
-    }
-
-    public boolean canAddCard(Card card) {
-        for (Card c : cards) {
-            if (c.color.equals(card.color)) {
-                return false;
+    private void initializePile() {
+        String[] colors = {"VIOLET", "YELLOW", "RED", "GREEN", "BLUE"};
+        for (String color : colors) {
+            for (int number = 1; number <= 6; number++) {
+                for (int i = 0; i < 3; i++) {
+                    cards.add(new Card(number, color, false));
+                }
             }
         }
-        return true;
+        for (int i = 0; i < 8; i++) {
+            cards.add(new Card(0, "DADO", true));
+        }
+        Collections.shuffle(cards);
     }
 
-    public void clearPile() {
-        cards.clear();
-    }
-
-    public String toString() {
-        return cards.toString();
+    public Card drawCard() {
+        return cards.isEmpty() ? null : cards.pop();
     }
 }

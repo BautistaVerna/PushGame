@@ -1,17 +1,28 @@
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
-
 public class Card {
-    String color;
-    int value;
+    private int number;
+    private String color;
+    private boolean isDiceCard;
 
-    public Card(String color, int value) {
+    public Card(int number, String color, boolean isDiceCard) {
+        this.number = number;
         this.color = color;
-        this.value = value;
+        this.isDiceCard = isDiceCard;
     }
 
+    public int getNumber() {
+        return number;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public boolean isDiceCard() {
+        return isDiceCard;
+    }
+
+    @Override
     public String toString() {
-        return color + " " + value;
+        return (isDiceCard ? "DADO" : number + " " + color);
     }
 }
