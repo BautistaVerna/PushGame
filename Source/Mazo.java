@@ -1,3 +1,7 @@
+import Source.Carta;
+import Source.CartaCambioSentido;
+import Source.CartaDado;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
