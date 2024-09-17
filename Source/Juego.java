@@ -208,19 +208,25 @@ public class Juego {
 
     // Colocar la carta robada en una fila seleccionada por el jugador
     private void colocarCartaEnFila(Jugador jugador, Source.Carta carta, Scanner scanner) {
-        System.out.println("Selecciona la fila (1-3) para colocar la carta: ");
-        int filaIndex = scanner.nextInt() - 1;
+        boolean cartaColocada = false;
 
-        if (filaIndexValido(filaIndex)) {
-            Fila fila = filasActivas.get(filaIndex);
-            if (fila.agregarCarta(carta)) {
-                System.out.println("Carta colocada en la fila " + (filaIndex + 1));
+        while (!cartaColocada) {
+            System.out.println("Selecciona la fila (1-3) para colocar la carta: ");
+            int filaIndex = scanner.nextInt() - 1;
+
+            if (filaIndexValido(filaIndex)) {
+                Fila fila = filasActivas.get(filaIndex);
+                if (fila.agregarCarta(carta)) {
+                    System.out.println("Carta colocada en la fila " + (filaIndex + 1));
+                    cartaColocada = true; // Salir del bucle
+                } else {
+                    System.out.println("No se puede colocar la carta en esta fila.");
+                    manejarArriesgarse(jugador);
+                    break; // Salir del bucle si no se puede colocar la carta
+                }
             } else {
-                System.out.println("No se puede colocar la carta en esta fila.");
-                manejarArriesgarse(jugador);
+                System.out.println("Índice de fila inválido.");
             }
-        } else {
-            System.out.println("Índice de fila inválido.");
         }
     }
 
