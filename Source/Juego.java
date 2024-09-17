@@ -136,9 +136,9 @@
 //}
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import javax.swing.text.html.HTMLDocument;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Juego {
     private Mazo mazo;
@@ -167,42 +167,86 @@ public class Juego {
         scanner.close();
     }
 
+//    // Juega el turno de un jugador
+//    private void jugarTurno(Jugador jugador, Scanner scanner) {
+//        while (true) {
+//            Source.Carta carta = mazo.robarCarta();
+//            if (carta == null) {
+//                System.out.println("El mazo está vacío.");
+//                break;
+//            }
+//
+//            System.out.println("Carta robada: " + carta.getDescripcion());
+//            mostrarFilas();
+//
+//            // Mostrar opciones al jugador y procesar su elección
+//            switch (mostrarOpciones(scanner)) {
+//                case 1:
+//                    colocarCartaEnFila(jugador, carta, scanner);
+//                    break;
+//                case 2:
+//                    asegurarCartas(jugador, scanner);
+//                    break;
+//                case 3:
+//                    terminarTurno(jugador);
+//                    return; // Terminar el turno actual
+//                default:
+//                    System.out.println("Opción no válida.");
+//            }
+//        }
+//        manejarArriesgarse(jugador);
+//    }
+
     // Juega el turno de un jugador
     private void jugarTurno(Jugador jugador, Scanner scanner) {
         while (true) {
-            Source.Carta carta = mazo.robarCarta();
-            if (carta == null) {
-                System.out.println("El mazo está vacío.");
-                break;
-            }
+            System.out.println("¿Qué quieres hacer?");
+            System.out.println("1. Pedir carta");
+            System.out.println("2. Asegurar cartas y pasar turno");
 
-            System.out.println("Carta robada: " + carta.getDescripcion());
-            mostrarFilas();
+            int opcion = scanner.nextInt();
+            scanner.nextLine(); // Limpiar el buffer
 
-            // Mostrar opciones al jugador y procesar su elección
-            switch (mostrarOpciones(scanner)) {
-                case 1:
-                    colocarCartaEnFila(jugador, carta, scanner);
+            if (opcion == 2) {
+                // Si el jugador decide asegurar cartas
+                asegurarCartas(jugador, scanner);
+                System.out.println("Has asegurado tus cartas. El turno ha terminado.");
+                terminarTurno(jugador);
+                return; // Termina el turno sin robar carta
+            } else if (opcion == 1) {
+                // Si el jugador decide pedir carta
+                Source.Carta carta = mazo.robarCarta();
+                if (carta == null) {
+                    System.out.println("El mazo está vacío.");
                     break;
-                case 2:
-                    asegurarCartas(jugador, scanner);
-                    break;
-                case 3:
-                    terminarTurno(jugador);
-                    return; // Terminar el turno actual
-                default:
-                    System.out.println("Opción no válida.");
+                }
+
+                System.out.println("Carta robada: " + carta.getDescripcion());
+                mostrarFilas();
+
+                // Mostrar opciones para colocar la carta o pasar el turno
+                switch (mostrarOpciones(scanner)) {
+                    case 1:
+                        colocarCartaEnFila(jugador, carta, scanner);
+                        break;
+                    default:
+                        System.out.println("Opción no válida.");
+                }
+            } else {
+                System.out.println("Opción no válida. Por favor, elige 1 o 2.");
             }
         }
-        manejarArriesgarse(jugador);
+
+        manejarArriesgarse(jugador); // Si el jugador arriesga demasiado
     }
 
+    //    ..
     // Mostrar las opciones al jugador y devolver su elección
     private int mostrarOpciones(Scanner scanner) {
         System.out.println("Opciones:");
         System.out.println("1. Colocar carta en una fila");
-        System.out.println("2. Asegurar cartas");
-        System.out.println("3. Pasar turno");
+//        System.out.println("2. Asegurar cartas");
+//        System.out.println("3. Pasar turno");
         return scanner.nextInt();
     }
 
@@ -242,6 +286,7 @@ public class Juego {
         jugador.asegurarCartas(color);
         System.out.println("Cartas del color " + color + " aseguradas.");
     }
+
 
     // Terminar el turno del jugador y añadir filas activas a su botín
     private void terminarTurno(Jugador jugador) {
