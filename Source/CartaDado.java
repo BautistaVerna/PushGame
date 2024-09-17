@@ -26,7 +26,7 @@
 
 package Source;
 // Clase CartaDado que extiende de la clase base Carta
-public class CartaDado extends Carta {
+public class CartaDado extends Source.Carta {
 
     // Constructor que inicializa el color de la carta dado
     public CartaDado(String color) {

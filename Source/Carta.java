@@ -12,4 +12,12 @@ public abstract class Carta {
     }
 
     public abstract String getDescripcion();
+
+    public int getValor(int i) {
+        return 0;
+    }
+
+    public int getValor() {
+        return 0;
+    }
 }

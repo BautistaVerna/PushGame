@@ -11,7 +11,7 @@
 
 package Source;
 // Clase CartaCambioSentido que extiende de la clase base Carta
-public class CartaCambioSentido extends Carta {
+public class CartaCambioSentido extends Source.Carta {
 
     // Constructor que inicializa la carta de cambio de sentido sin color específico
     public CartaCambioSentido() {
