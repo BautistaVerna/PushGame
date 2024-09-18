@@ -1,139 +1,115 @@
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//public class Jugador {
-//    private String nombre;
-//    private List<Source.Carta> botin;
-//    private List<Fila> filas;
-//
-//    public Jugador(String nombre) {
-//        this.nombre = nombre;
-//        this.botin = new ArrayList<>();
-//        this.filas = new ArrayList<>();
-//    }
-//
-//    public String getNombre() {
-//        return nombre;
-//    }
-//
-//    public void addCartaBotin(Source.Carta carta) {
-//        botin.add(carta);
-//    }
-//
-//    public List<Source.Carta> getBotin() {
-//        return botin;
-//    }
-//
-//    public void addFila(Fila fila) {
-//        filas.add(fila);
-//    }
-//
-//    public List<Fila> getFilas() {
-//        return filas;
-//    }
-//
-//    public void asegurarCartas(String color) {
-//        // Crear mazo de cartas aseguradas
-//        List<Source.Carta> aseguradas = new ArrayList<>();
-//        botin.removeIf(carta -> {
-//            if (carta.getColor().equals(color)) {
-//                aseguradas.add(carta);
-//                return true;
-//            }
-//            return false;
-//        });
-//        // Aquí podrías mantener las cartas aseguradas en una lista separada si es necesario
-//    }
-//
-//    public void perderCartas(String color) {
-//        botin.removeIf(carta -> carta.getColor().equals(color));
-//    }
-//
-//    public int calcularPuntos() {
-//        return 0;
-//    }
-//}
-
-
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class Jugador {
     private String nombre;
-    private List<Source.Carta> botin;
-    private List<Source.Carta> cartasAseguradas; // Lista separada para las cartas aseguradas
-    private List<Fila> filas;
+    private ArrayList<Carta> fila1;
+    private ArrayList<Carta> fila2;
+    private ArrayList<Carta> fila3;
+    private HashMap<String, ArrayList<Integer>> botin; // Botín agrupado por color
+    private boolean tieneDado; // Indicador de si el jugador tiene una carta de dado
 
     public Jugador(String nombre) {
         this.nombre = nombre;
-        this.botin = new ArrayList<>();
-        this.cartasAseguradas = new ArrayList<>();
-        this.filas = new ArrayList<>();
+        this.fila1 = new ArrayList<>();
+        this.fila2 = new ArrayList<>();
+        this.fila3 = new ArrayList<>();
+        this.botin = new HashMap<>();
+        this.tieneDado = false;
+
+        // Inicializar los colores en el botín
+        botin.put("Verde", new ArrayList<>());
+        botin.put("Violeta", new ArrayList<>());
+        botin.put("Amarillo", new ArrayList<>());
+        botin.put("Rojo", new ArrayList<>());
+        botin.put("Azul", new ArrayList<>());
     }
 
-    // Obtener el nombre del jugador
     public String getNombre() {
         return nombre;
     }
 
-    // Añadir una carta al botín
-    public void addCartaBotin(Source.Carta carta) {
-        botin.add(carta);
+    public ArrayList<Carta> getFila(int num) {
+        switch (num) {
+            case 1: return fila1;
+            case 2: return fila2;
+            case 3: return fila3;
+            default: return null;
+        }
     }
 
-    // Obtener el botín del jugador
-    public List<Source.Carta> getBotin() {
-        return botin;
+    public boolean agregarCartaAFila(Carta carta, int numFila) {
+        ArrayList<Carta> fila = getFila(numFila);
+        if (fila != null) {
+            // Validar que no haya repetición de color o de número en la fila
+            for (Carta c : fila) {
+                if (c.getColor().equals(carta.getColor()) || c.getValor() == carta.getValor()) {
+                    return false; // No se puede agregar porque hay repetición de color o número
+                }
+            }
+            fila.add(carta);
+            if (carta.esDado()) {
+                tieneDado = true; // Si es una carta de dado, activar el indicador
+            }
+            return true;
+        }
+        return false; // No se puede colocar la carta en la fila
     }
 
-    // Añadir una fila al jugador
-    public void addFila(Fila fila) {
-        filas.add(fila);
-        // Opcionalmente, podrías mover las cartas de la fila al botín si es necesario
+    public void asegurarCartas() {
+        // Agregar las cartas de las filas al botín por colores
+        agregarFilaABotin(fila1);
+        agregarFilaABotin(fila2);
+        agregarFilaABotin(fila3);
+
+        // Limpiar las filas
+        fila1.clear();
+        fila2.clear();
+        fila3.clear();
     }
 
-    // Obtener las filas del jugador
-    public List<Fila> getFilas() {
-        return filas;
-    }
-
-    // Asegurar cartas de un color específico, moviéndolas del botín a las cartas aseguradas
-    public void asegurarCartas(String color) {
-        List<Source.Carta> cartasParaAsegurar = new ArrayList<>();
-        for (Source.Carta carta : botin) {
-            if (carta.getColor().equals(color)) {
-                cartasParaAsegurar.add(carta);
+    private void agregarFilaABotin(ArrayList<Carta> fila) {
+        if (!fila.isEmpty()) {
+            for (Carta carta : fila) {
+                if (!carta.esDado()) {
+                    botin.get(carta.getColor()).add(carta.getValor());
+                }
             }
         }
-
-        // Mover cartas del botín a las aseguradas
-        botin.removeAll(cartasParaAsegurar);
-        cartasAseguradas.addAll(cartasParaAsegurar);
-
-        System.out.println(cartasParaAsegurar.size() + " cartas del color " + color + " aseguradas.");
     }
 
-    // Eliminar cartas de un color específico del botín (cuando el jugador pierde)
-    public void perderCartas(String color) {
-        botin.removeIf(carta -> carta.getColor().equals(color));
-        System.out.println("Cartas del color " + color + " perdidas.");
+    public void lanzarDado() {
+        if (tieneDado) {
+            String[] colores = {"Verde", "Violeta", "Amarillo", "Rojo", "Azul", "Negro"};
+            int resultado = (int) (Math.random() * 6); // Lanzar el dado
+            String colorSeleccionado = colores[resultado];
+            System.out.println("El color que tocó en el dado es: " + colorSeleccionado);
+
+            if (!colorSeleccionado.equals("Negro")) {
+                botin.get(colorSeleccionado).clear(); // Limpiar cartas de ese color
+                System.out.println("Tu botín después de lanzar el dado:");
+                mostrarBotin();
+            } else {
+                System.out.println("Dado negro: no pierdes cartas.");
+            }
+            tieneDado = false; // Resetear dado
+        }
     }
 
-    // Calcular puntos en base a las cartas en el botín y las aseguradas
+    public void mostrarBotin() {
+        for (String color : botin.keySet()) {
+            System.out.println(color + ": " + botin.get(color).toString());
+        }
+    }
+
     public int calcularPuntos() {
         int puntos = 0;
-        // Asumiendo que cada carta tiene un valor asociado
-        for (Source.Carta carta : botin) {
-            puntos = carta.getValor(); // Considerando que Carta tiene un método getValor()
-        }
-        for (Source.Carta carta : cartasAseguradas) {
-            puntos = carta.getValor(); // Las cartas aseguradas también suman puntos
+        for (String color : botin.keySet()) {
+            for (int valor : botin.get(color)) {
+                puntos += valor;
+            }
         }
         return puntos;
     }
-
-    // Obtener las cartas aseguradas
-    public List<Source.Carta> getCartasAseguradas() {
-        return cartasAseguradas;
-    }
 }
+
