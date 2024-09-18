@@ -33,3 +33,4 @@ public class Carta {
         return color + " " + valor;
     }
 }
+//Fran
