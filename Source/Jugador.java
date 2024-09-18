@@ -40,7 +40,13 @@ public class Jugador {
 
     public boolean agregarCartaAFila(Carta carta, int numFila) {
         ArrayList<Carta> fila = getFila(numFila);
-        if (fila != null && (fila.isEmpty() || fila.get(0).getColor().equals(carta.getColor()))) {
+        if (fila != null) {
+            // Validar que no haya repetición de color o de número en la fila
+            for (Carta c : fila) {
+                if (c.getColor().equals(carta.getColor()) || c.getValor() == carta.getValor()) {
+                    return false; // No se puede agregar porque hay repetición de color o número
+                }
+            }
             fila.add(carta);
             if (carta.esDado()) {
                 tieneDado = true; // Si es una carta de dado, activar el indicador
@@ -77,9 +83,11 @@ public class Jugador {
             String[] colores = {"Verde", "Violeta", "Amarillo", "Rojo", "Azul", "Negro"};
             int resultado = (int) (Math.random() * 6); // Lanzar el dado
             String colorSeleccionado = colores[resultado];
+            System.out.println("El color que tocó en el dado es: " + colorSeleccionado);
+
             if (!colorSeleccionado.equals("Negro")) {
                 botin.get(colorSeleccionado).clear(); // Limpiar cartas de ese color
-                System.out.println("Luego de girar el dado, tu botín quedo:");
+                System.out.println("Tu botín después de lanzar el dado:");
                 mostrarBotin();
             } else {
                 System.out.println("Dado negro: no pierdes cartas.");
@@ -90,7 +98,7 @@ public class Jugador {
 
     public void mostrarBotin() {
         for (String color : botin.keySet()) {
-            System.out.println(color + botin.get(color).toString());
+            System.out.println(color + ": " + botin.get(color).toString());
         }
     }
 
@@ -104,4 +112,5 @@ public class Jugador {
         return puntos;
     }
 }
+
 //FranM

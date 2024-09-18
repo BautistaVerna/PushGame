@@ -34,24 +34,41 @@ public class Juego {
     }
 
     private void jugarTurno(Jugador jugador) {
-        System.out.println("Turno de " + jugador.getNombre());
-        System.out.println("Opciones:\n1 - Robar carta\n2 - Asegurar cartas y pasar turno");
+        boolean turnoTerminado = false;
 
-        int eleccion = scanner.nextInt();
-        if (eleccion == 1) {
-            Carta cartaRobada = mazo.robarCarta();
-            if (cartaRobada != null) {
-                System.out.println("Carta robada: " + cartaRobada);
-                colocarCartaEnFila(jugador, cartaRobada);
+        System.out.println("Turno de " + jugador.getNombre());
+
+        // Continuar turno mientras el jugador no pierda o no asegure
+        while (!turnoTerminado && !mazo.estaVacio()) {
+            System.out.println("Opciones:\n1 - Robar carta\n2 - Asegurar cartas y pasar turno");
+
+            int eleccion = scanner.nextInt();
+
+            if (eleccion == 1) {
+                // El jugador decide robar una carta
+                Carta cartaRobada = mazo.robarCarta();
+                if (cartaRobada != null) {
+                    System.out.println("Carta robada: " + cartaRobada);
+                    if (!colocarCartaEnFila(jugador, cartaRobada)) {
+                        // Si no puede colocar la carta, se tira el dado y termina el turno
+                        System.out.println("No puedes colocar la carta. Lanzarás el dado y perderás tu turno.");
+                        jugador.lanzarDado(); // Lanzar dado si corresponde
+                        turnoTerminado = true;
+                    }
+                } else {
+                    turnoTerminado = true;
+                }
+            } else if (eleccion == 2) {
+                // El jugador decide asegurar las cartas y terminar su turno
+                jugador.asegurarCartas();
+                jugador.mostrarBotin();
+                jugador.lanzarDado(); // Lanzar dado si corresponde
+                turnoTerminado = true;
             }
-        } else if (eleccion == 2) {
-            jugador.asegurarCartas();
-            jugador.mostrarBotin();
-            jugador.lanzarDado();
         }
     }
 
-    private void colocarCartaEnFila(Jugador jugador, Carta carta) {
+    private boolean colocarCartaEnFila(Jugador jugador, Carta carta) {
         System.out.println("Fila 1: " + jugador.getFila(1));
         System.out.println("Fila 2: " + jugador.getFila(2));
         System.out.println("Fila 3: " + jugador.getFila(3));
@@ -59,9 +76,10 @@ public class Juego {
 
         int numFila = scanner.nextInt();
         if (!jugador.agregarCartaAFila(carta, numFila)) {
-            System.out.println("No se puede colocar la carta en ninguna fila. Tendras que tirar el dado y pasar de turno.");
-            jugador.lanzarDado();
+            return false; // No se puede colocar la carta en ninguna fila
         }
+
+        return true; // Se pudo colocar la carta
     }
 
     private void finalizarJuego() {
@@ -80,13 +98,11 @@ public class Juego {
         }
 
         if (ganador != null) {
-            System.out.println("¡Ganó " + ganador.getNombre() + " con " + mayorPuntaje + " puntos!");
+            System.out.println("El ganador es " + ganador.getNombre() + " con " + mayorPuntaje + " puntos.");
+        } else {
+            System.out.println("Hubo un empate.");
         }
     }
-
-    public static void main(String[] args) {
-        Juego juego = new Juego();
-        juego.iniciarJuego();
-    }
 }
+
 //FranM
