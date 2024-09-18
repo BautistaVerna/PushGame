@@ -55,19 +55,102 @@
 //}
 
 
+//import java.util.ArrayList;
+//import java.util.List;
+//
+//public class Jugador {
+//    private String nombre;
+//    private List<Source.Carta> botin;
+//    private List<Source.Carta> cartasAseguradas; // Lista separada para las cartas aseguradas
+//    private List<Fila> filas;
+//
+//    public Jugador(String nombre) {
+//        this.nombre = nombre;
+//        this.botin = new ArrayList<>();
+//        this.cartasAseguradas = new ArrayList<>();
+//        this.filas = new ArrayList<>();
+//    }
+//
+//    // Obtener el nombre del jugador
+//    public String getNombre() {
+//        return nombre;
+//    }
+//
+//    // Añadir una carta al botín
+//    public void addCartaBotin(Source.Carta carta) {
+//        botin.add(carta);
+//    }
+//
+//    // Obtener el botín del jugador
+//    public List<Source.Carta> getBotin() {
+//        return botin;
+//    }
+//
+//    // Añadir una fila al jugador
+//    public void addFila(Fila fila) {
+//        filas.add(fila);
+//        // Opcionalmente, podrías mover las cartas de la fila al botín si es necesario
+//    }
+//
+//    // Obtener las filas del jugador
+//    public List<Fila> getFilas() {
+//        return filas;
+//    }
+//
+//    // Asegurar cartas de un color específico, moviéndolas del botín a las cartas aseguradas
+//    public void asegurarCartas(String color) {
+//        List<Source.Carta> cartasParaAsegurar = new ArrayList<>();
+//        for (Source.Carta carta : botin) {
+//            if (carta.getColor().equals(color)) {
+//                cartasParaAsegurar.add(carta);
+//            }
+//        }
+//
+//        // Mover cartas del botín a las aseguradas
+//        botin.removeAll(cartasParaAsegurar);
+//        cartasAseguradas.addAll(cartasParaAsegurar);
+//
+//        System.out.println(cartasParaAsegurar.size() + " cartas del color " + color + " aseguradas.");
+//    }
+//
+//    // Eliminar cartas de un color específico del botín (cuando el jugador pierde)
+//    public void perderCartas(String color) {
+//        botin.removeIf(carta -> carta.getColor().equals(color));
+//        System.out.println("Cartas del color " + color + " perdidas.");
+//    }
+//
+//    // Calcular puntos en base a las cartas en el botín y las aseguradas
+//    public int calcularPuntos() {
+//        int puntos = 0;
+//        // Asumiendo que cada carta tiene un valor asociado
+//        for (Source.Carta carta : botin) {
+//            puntos = carta.getValor(); // Considerando que Carta tiene un método getValor()
+//        }
+//        for (Source.Carta carta : cartasAseguradas) {
+//            puntos = carta.getValor(); // Las cartas aseguradas también suman puntos
+//        }
+//        return puntos;
+//    }
+//
+//    // Obtener las cartas aseguradas
+//    public List<Source.Carta> getCartasAseguradas() {
+//        return cartasAseguradas;
+//    }
+//}
+
+import Source.Carta;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Jugador {
     private String nombre;
-    private List<Source.Carta> botin;
-    private List<Source.Carta> cartasAseguradas; // Lista separada para las cartas aseguradas
+    private Botin botin; // Cambiado a Botin
     private List<Fila> filas;
 
     public Jugador(String nombre) {
         this.nombre = nombre;
-        this.botin = new ArrayList<>();
-        this.cartasAseguradas = new ArrayList<>();
+        this.botin = new Botin(); // Inicializar Botin
         this.filas = new ArrayList<>();
     }
 
@@ -78,18 +161,17 @@ public class Jugador {
 
     // Añadir una carta al botín
     public void addCartaBotin(Source.Carta carta) {
-        botin.add(carta);
+        botin.agregarCartas((List<Carta>) carta);
     }
 
     // Obtener el botín del jugador
-    public List<Source.Carta> getBotin() {
+    public Botin getBotin() {
         return botin;
     }
 
     // Añadir una fila al jugador
     public void addFila(Fila fila) {
         filas.add(fila);
-        // Opcionalmente, podrías mover las cartas de la fila al botín si es necesario
     }
 
     // Obtener las filas del jugador
@@ -97,43 +179,22 @@ public class Jugador {
         return filas;
     }
 
-    // Asegurar cartas de un color específico, moviéndolas del botín a las cartas aseguradas
-    public void asegurarCartas(String color) {
-        List<Source.Carta> cartasParaAsegurar = new ArrayList<>();
-        for (Source.Carta carta : botin) {
-            if (carta.getColor().equals(color)) {
-                cartasParaAsegurar.add(carta);
+    // Terminar el turno moviendo las cartas de las filas al botín
+    public void terminarTurno() {
+        for (Fila fila : filas) {
+            for (Source.Carta carta : fila.getCartas()) {
+                addCartaBotin(carta);
             }
         }
-
-        // Mover cartas del botín a las aseguradas
-        botin.removeAll(cartasParaAsegurar);
-        cartasAseguradas.addAll(cartasParaAsegurar);
-
-        System.out.println(cartasParaAsegurar.size() + " cartas del color " + color + " aseguradas.");
+        filas.clear(); // Limpiar las filas después de mover las cartas al botín
     }
 
-    // Eliminar cartas de un color específico del botín (cuando el jugador pierde)
-    public void perderCartas(String color) {
-        botin.removeIf(carta -> carta.getColor().equals(color));
-        System.out.println("Cartas del color " + color + " perdidas.");
-    }
-
-    // Calcular puntos en base a las cartas en el botín y las aseguradas
+    // Calcular puntos usando el botín
     public int calcularPuntos() {
         int puntos = 0;
-        // Asumiendo que cada carta tiene un valor asociado
-        for (Source.Carta carta : botin) {
-            puntos = carta.getValor(); // Considerando que Carta tiene un método getValor()
-        }
-        for (Source.Carta carta : cartasAseguradas) {
-            puntos = carta.getValor(); // Las cartas aseguradas también suman puntos
+        for (Source.Carta carta : botin.getCartas()) {
+            puntos += carta.getValor(); // Asumiendo que Carta tiene un método getValor()
         }
         return puntos;
-    }
-
-    // Obtener las cartas aseguradas
-    public List<Source.Carta> getCartasAseguradas() {
-        return cartasAseguradas;
     }
 }
