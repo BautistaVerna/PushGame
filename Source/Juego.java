@@ -59,7 +59,7 @@ public class Juego {
 
         int numFila = scanner.nextInt();
         if (!jugador.agregarCartaAFila(carta, numFila)) {
-            System.out.println("No se puede colocar la carta en ninguna fila. Tirar dado y pasar de turno.");
+            System.out.println("No se puede colocar la carta en ninguna fila. Tendras que tirar el dado y pasar de turno.");
             jugador.lanzarDado();
         }
     }
