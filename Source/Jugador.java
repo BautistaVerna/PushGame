@@ -83,7 +83,7 @@ public class Jugador {
         if (tieneDado) {
             String[] colores = {"Verde", "Violeta", "Amarillo", "Rojo", "Azul", "Negro"};
             int resultado = (int) (Math.random() * 6);
-            String colorLanzado = colores[resultado]; // Almacenar el color salido
+            colorLanzado = colores[resultado]; // Almacenar el color lanzado
             System.out.println("El color que tocó en el dado es: " + colorLanzado);
 
             if (!colorLanzado.equals("Negro")) {
@@ -100,6 +100,7 @@ public class Jugador {
             mostrarBotin(); // Mostrar nuevo botín
         }
     }
+
 
 
     public String getColorLanzado() {
