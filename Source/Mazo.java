@@ -38,4 +38,4 @@ public class Mazo {
         return cartas.isEmpty();
     }
 }
-
+// Ultima version Bauti
