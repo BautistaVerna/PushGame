@@ -38,28 +38,27 @@ public class Juego {
 
         System.out.println("Turno de " + jugador.getNombre());
 
-        // Continuar turno mientras el jugador no pierda o no asegure
         while (!turnoTerminado && !mazo.estaVacio()) {
             System.out.println("Opciones:\n1 - Robar carta\n2 - Asegurar cartas y pasar turno");
 
             int eleccion = scanner.nextInt();
 
             if (eleccion == 1) {
-                // El jugador decide robar una carta
                 Carta cartaRobada = mazo.robarCarta();
                 if (cartaRobada != null) {
                     System.out.println("Carta robada: " + cartaRobada);
                     if (!colocarCartaEnFila(jugador, cartaRobada)) {
-                        // Si no puede colocar la carta, se tira el dado y termina el turno
                         System.out.println("No puedes colocar la carta. Lanzarás el dado y perderás tu turno.");
                         jugador.lanzarDado(); // Lanzar dado si corresponde
-                        turnoTerminado = true;
+                        String colorSalido = jugador.getColorLanzado(); // Obtener el color salido
+                        System.out.println("El color que salió en el dado es: " + colorSalido);
+                        jugador.mostrarBotin(); // Mostrar nuevo botín
+                        turnoTerminado = true; // Terminar turno
                     }
                 } else {
                     turnoTerminado = true;
                 }
             } else if (eleccion == 2) {
-                // El jugador decide asegurar las cartas y terminar su turno
                 jugador.asegurarCartas();
                 jugador.mostrarBotin();
                 jugador.lanzarDado(); // Lanzar dado si corresponde
@@ -67,6 +66,7 @@ public class Juego {
             }
         }
     }
+
 
     private boolean colocarCartaEnFila(Jugador jugador, Carta carta) {
         System.out.println("Fila 1: " + jugador.getFila(1));

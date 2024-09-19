@@ -8,6 +8,7 @@ public class Jugador {
     private ArrayList<Carta> fila3;
     private HashMap<String, ArrayList<Integer>> botin; // Botín agrupado por color
     private boolean tieneDado; // Indicador de si el jugador tiene una carta de dado
+    private String colorLanzado; // Variable para almacenar el color salido en el dado
 
     public Jugador(String nombre) {
         this.nombre = nombre;
@@ -81,20 +82,30 @@ public class Jugador {
     public void lanzarDado() {
         if (tieneDado) {
             String[] colores = {"Verde", "Violeta", "Amarillo", "Rojo", "Azul", "Negro"};
-            int resultado = (int) (Math.random() * 6); // Lanzar el dado
-            String colorSeleccionado = colores[resultado];
-            System.out.println("El color que tocó en el dado es: " + colorSeleccionado);
+            int resultado = (int) (Math.random() * 6);
+            String colorLanzado = colores[resultado]; // Almacenar el color salido
+            System.out.println("El color que tocó en el dado es: " + colorLanzado);
 
-            if (!colorSeleccionado.equals("Negro")) {
-                botin.get(colorSeleccionado).clear(); // Limpiar cartas de ese color
-                System.out.println("Tu botín después de lanzar el dado:");
-                mostrarBotin();
+            if (!colorLanzado.equals("Negro")) {
+                // Limpiar cartas de ese color del botín
+                botin.get(colorLanzado).clear(); // Eliminar todas las cartas de ese color
+                System.out.println("Las cartas de color " + colorLanzado + " han sido eliminadas de tu botín.");
             } else {
                 System.out.println("Dado negro: no pierdes cartas.");
             }
             tieneDado = false; // Resetear dado
+
+            // Mostrar el nuevo botín solo una vez
+            System.out.println("Tu botín después de lanzar el dado:");
+            mostrarBotin(); // Mostrar nuevo botín
         }
     }
+
+
+    public String getColorLanzado() {
+        return colorLanzado; // Retornar el color lanzado
+    }
+
 
     public void mostrarBotin() {
         for (String color : botin.keySet()) {
