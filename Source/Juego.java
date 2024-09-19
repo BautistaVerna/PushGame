@@ -38,6 +38,9 @@ public class Juego {
 
         System.out.println("Turno de " + jugador.getNombre());
 
+        // Reiniciar filas al inicio del turno
+        jugador.reiniciarFilas();
+
         while (!turnoTerminado && !mazo.estaVacio()) {
             System.out.println("Opciones:\n1 - Robar carta\n2 - Asegurar cartas y pasar turno");
 
@@ -66,6 +69,7 @@ public class Juego {
             }
         }
     }
+
 
 
     private boolean colocarCartaEnFila(Jugador jugador, Carta carta) {

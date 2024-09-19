@@ -122,6 +122,12 @@ public class Jugador {
         }
         return puntos;
     }
+
+    public void reiniciarFilas() {
+        fila1.clear();
+        fila2.clear();
+        fila3.clear();
+    }
 }
 
 // Ultima version Bauti
