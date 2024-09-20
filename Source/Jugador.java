@@ -130,5 +130,3 @@ public class Jugador {
         fila3.clear();
     }
 }
-
-// Ultima version Bauti
