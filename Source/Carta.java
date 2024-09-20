@@ -42,4 +42,3 @@ public class Carta {
         }
     }
 }
-// Ultima version Bauti
