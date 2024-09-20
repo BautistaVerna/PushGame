@@ -4,5 +4,3 @@ public class Main {
         juego.iniciarJuego();
     }
 }
-
-// Ultima version Bauti
