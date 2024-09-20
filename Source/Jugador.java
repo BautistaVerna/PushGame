@@ -1,51 +1,134 @@
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class Jugador {
     private String nombre;
-    private List<Carta> botin;
-    private List<Fila> filas;
+    private ArrayList<Carta> fila1;
+    private ArrayList<Carta> fila2;
+    private ArrayList<Carta> fila3;
+    private HashMap<String, ArrayList<Integer>> botin; // Botín agrupado por color
+    private boolean tieneDado; // Indicador de si el jugador tiene una carta de dado
+    private String colorLanzado; // Variable para almacenar el color salido en el dado
 
     public Jugador(String nombre) {
         this.nombre = nombre;
-        this.botin = new ArrayList<>();
-        this.filas = new ArrayList<>();
+        this.fila1 = new ArrayList<>();
+        this.fila2 = new ArrayList<>();
+        this.fila3 = new ArrayList<>();
+        this.botin = new HashMap<>();
+        this.tieneDado = false;
+
+        // Inicializar los colores en el botín
+        botin.put("Verde", new ArrayList<>());
+        botin.put("Violeta", new ArrayList<>());
+        botin.put("Amarillo", new ArrayList<>());
+        botin.put("Rojo", new ArrayList<>());
+        botin.put("Azul", new ArrayList<>());
     }
 
     public String getNombre() {
         return nombre;
     }
 
-    public void addCartaBotin(Carta carta) {
-        botin.add(carta);
+    public ArrayList<Carta> getFila(int num) {
+        switch (num) {
+            case 1: return fila1;
+            case 2: return fila2;
+            case 3: return fila3;
+            default: return null;
+        }
     }
 
-    public List<Carta> getBotin() {
-        return botin;
-    }
-
-    public void addFila(Fila fila) {
-        filas.add(fila);
-    }
-
-    public List<Fila> getFilas() {
-        return filas;
-    }
-
-    public void asegurarCartas(String color) {
-        // Crear mazo de cartas aseguradas
-        List<Carta> aseguradas = new ArrayList<>();
-        botin.removeIf(carta -> {
-            if (carta.getColor().equals(color)) {
-                aseguradas.add(carta);
-                return true;
+    public boolean agregarCartaAFila(Carta carta, int numFila) {
+        ArrayList<Carta> fila = getFila(numFila);
+        if (fila != null) {
+            // Validar que no haya repetición de color o de número en la fila
+            for (Carta c : fila) {
+                if (c.getColor().equals(carta.getColor()) || c.getValor() == carta.getValor()) {
+                    return false; // No se puede agregar porque hay repetición de color o número
+                }
             }
-            return false;
-        });
-        // Aquí podrías mantener las cartas aseguradas en una lista separada si es necesario
+            fila.add(carta);
+            if (carta.esDado()) {
+                tieneDado = true; // Si es una carta de dado, activar el indicador
+            }
+            return true;
+        }
+        return false; // No se puede colocar la carta en la fila
     }
 
-    public void perderCartas(String color) {
-        botin.removeIf(carta -> carta.getColor().equals(color));
+    public void asegurarCartas() {
+        // Agregar las cartas de las filas al botín por colores
+        agregarFilaABotin(fila1);
+        agregarFilaABotin(fila2);
+        agregarFilaABotin(fila3);
+
+        // Limpiar las filas
+        fila1.clear();
+        fila2.clear();
+        fila3.clear();
+    }
+
+    private void agregarFilaABotin(ArrayList<Carta> fila) {
+        if (!fila.isEmpty()) {
+            for (Carta carta : fila) {
+                if (!carta.esDado()) {
+                    botin.get(carta.getColor()).add(carta.getValor());
+                }
+            }
+        }
+    }
+
+    public void lanzarDado() {
+        if (tieneDado) {
+            String[] colores = {"Verde", "Violeta", "Amarillo", "Rojo", "Azul", "Negro"};
+            int resultado = (int) (Math.random() * 6);
+            colorLanzado = colores[resultado]; // Almacenar el color lanzado
+            System.out.println("El color que tocó en el dado es: " + colorLanzado);
+
+            if (!colorLanzado.equals("Negro")) {
+                // Limpiar cartas de ese color del botín
+                botin.get(colorLanzado).clear(); // Eliminar todas las cartas de ese color
+                System.out.println("Las cartas de color " + colorLanzado + " han sido eliminadas de tu botín.");
+            } else {
+                System.out.println("Dado negro: no pierdes cartas.");
+            }
+            tieneDado = false; // Resetear dado
+
+            // Mostrar el nuevo botín solo una vez
+            System.out.println("Tu botín después de lanzar el dado:");
+            mostrarBotin(); // Mostrar nuevo botín
+        }
+    }
+
+
+
+    public String getColorLanzado() {
+        return colorLanzado; // Retornar el color lanzado
+    }
+
+
+    public void mostrarBotin() {
+        for (String color : botin.keySet()) {
+            System.out.println(color + ": " + botin.get(color).toString());
+        }
+    }
+
+    public int calcularPuntos() {
+        int puntos = 0;
+        for (String color : botin.keySet()) {
+            for (int valor : botin.get(color)) {
+                puntos += valor;
+            }
+        }
+        return puntos;
+    }
+
+    public void reiniciarFilas() {
+        fila1.clear();
+        fila2.clear();
+        fila3.clear();
     }
 }
+
+// Ultima version Bauti

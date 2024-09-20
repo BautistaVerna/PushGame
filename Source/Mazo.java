@@ -1,44 +1,41 @@
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 public class Mazo {
-    private List<Carta> cartas;
+    private ArrayList<Carta> cartas;
 
     public Mazo() {
-        cartas = new LinkedList<>();
-        inicializarMazo();
-        Collections.shuffle(cartas);
-    }
+        cartas = new ArrayList<>();
+        String[] colores = {"Verde", "Violeta", "Amarillo", "Rojo", "Azul"};
 
-    private void inicializarMazo() {
-        // Agregar cartas de número
-        for (int numero = 1; numero <= 6; numero++) {
-            for (int i = 0; i < 3; i++) {
-                for (String color : new String[]{"Rojo", "Azul", "Verde", "Amarillo", "Naranja"}) {
-                    cartas.add(new CartaNumero(numero, color));
-                }
+        // Añadir cartas de números
+        for (String color : colores) {
+            for (int valor = 1; valor <= 6; valor++) {
+                cartas.add(new Carta(color, valor));
+                cartas.add(new Carta(color, valor));
+                cartas.add(new Carta(color, valor)); // Tres cartas de cada valor
             }
         }
 
-        // Agregar cartas de dado
-        for (int i = 0; i < 18; i++) {
-            cartas.add(new CartaDado("ColorDado"));
+        // Añadir cartas de dado
+        for (int i = 0; i < 15; i++) {
+            cartas.add(new Carta(true)); // 15 cartas de dado
         }
 
-        // Agregar cartas de cambio de sentido
-        for (int i = 0; i < 12; i++) {
-            cartas.add(new CartaCambioSentido());
-        }
+        // Mezclar el mazo
+        Collections.shuffle(cartas);
     }
 
     public Carta robarCarta() {
-        if (cartas.isEmpty()) return null;
-        return cartas.remove(0);
+        if (cartas.isEmpty()) {
+            System.out.println("El mazo se ha agotado.");
+            return null;
+        }
+        return cartas.remove(0); // Robar la primera carta del mazo
     }
-
 
     public boolean estaVacio() {
         return cartas.isEmpty();
     }
 }
+// Ultima version Bauti

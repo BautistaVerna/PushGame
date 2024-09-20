@@ -1,134 +1,112 @@
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Juego {
+    private ArrayList<Jugador> jugadores;
     private Mazo mazo;
-    private List<Jugador> jugadores;
-    private boolean cambioSentido;
+    private Scanner scanner;
 
-    public Juego(List<Jugador> jugadores) {
-        this.jugadores = jugadores;
-        this.mazo = new Mazo();
-        this.cambioSentido = false;
+    public Juego() {
+        jugadores = new ArrayList<>();
+        mazo = new Mazo();
+        scanner = new Scanner(System.in);
     }
 
-    public void iniciar() {
-        Scanner scanner = new Scanner(System.in);
-        int turno = 0;
-        while (!mazo.estaVacio()) {
-            Jugador jugador = jugadores.get(turno % jugadores.size());
-            System.out.println("Turno de " + jugador.getNombre());
-
-            jugarTurno(jugador, scanner);
-
-            // Pasar al siguiente turno
-            turno++;
-        }
-        calcularPuntos();
-        scanner.close();
-    }
-
-    private void jugarTurno(Jugador jugador, Scanner scanner) {
-        List<Fila> filasActivas = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            filasActivas.add(new Fila());
-        }
-
-        while (true) {
-            Carta carta = mazo.robarCarta();
-            if (carta == null) {
-                System.out.println("El mazo está vacío.");
-                break;
-            }
-
-            System.out.println("Carta robada: " + carta.getDescripcion());
-
-            // Mostrar las filas actuales al jugador
-            mostrarFilas(filasActivas);
-
-            // Mostrar opciones al jugador
-            System.out.println("Opciones:");
-            System.out.println("1. Colocar carta en una fila");
-            System.out.println("2. Asegurar cartas");
-            System.out.println("3. Pasar turno");
-
-            int opcion = scanner.nextInt();
-            scanner.nextLine(); // Limpiar buffer
-
-            switch (opcion) {
-                case 1:
-                    colocarCartaEnFila(jugador, carta, filasActivas, scanner);
-                    break;
-                case 2:
-                    asegurarCartas(jugador, scanner);
-                    break;
-                case 3:
-                    // Terminar el turno
-                    terminarTurno(jugador, filasActivas);
-                    return; // Terminar el turno actual
-                default:
-                    System.out.println("Opción no válida.");
-            }
-        }
-        // Si el jugador se arriesgó demasiado
-        manejarArriesgarse(jugador);
-    }
-
-    private void colocarCartaEnFila(Jugador jugador, Carta carta, List<Fila> filasActivas, Scanner scanner) {
-        System.out.println("Selecciona la fila (1-3) para colocar la carta: ");
-        int filaIndex = scanner.nextInt() - 1;
+    public void iniciarJuego() {
+        System.out.print("Ingrese cantidad de jugadores (2-6): ");
+        int cantidadJugadores = scanner.nextInt();
         scanner.nextLine(); // Limpiar buffer
 
-        if (filaIndex >= 0 && filaIndex < filasActivas.size()) {
-            Fila fila = filasActivas.get(filaIndex);
-            if (fila.agregarCarta(carta)) {
-                System.out.println("Carta colocada en la fila " + (filaIndex + 1));
-            } else {
-                System.out.println("No se puede colocar la carta en esta fila.");
-                // Manejar si el jugador se arriesga demasiado
-                manejarArriesgarse(jugador);
+        for (int i = 1; i <= cantidadJugadores; i++) {
+            System.out.print("Nombre Jugador " + i + ": ");
+            String nombre = scanner.nextLine();
+            jugadores.add(new Jugador(nombre));
+        }
+
+        System.out.println("Comienza el juego");
+        while (!mazo.estaVacio()) { // Verificar si el mazo está vacío
+            for (Jugador jugador : jugadores) {
+                jugarTurno(jugador);
             }
-        } else {
-            System.out.println("Índice de fila inválido.");
+        }
+
+        finalizarJuego();
+    }
+
+    private void jugarTurno(Jugador jugador) {
+        boolean turnoTerminado = false;
+
+        System.out.println("Turno de " + jugador.getNombre());
+
+        // Reiniciar filas al inicio del turno
+        jugador.reiniciarFilas();
+
+        while (!turnoTerminado && !mazo.estaVacio()) {
+            System.out.println("Opciones:\n1 - Robar carta\n2 - Asegurar cartas y pasar turno");
+
+            int eleccion = scanner.nextInt();
+
+            if (eleccion == 1) {
+                Carta cartaRobada = mazo.robarCarta();
+                if (cartaRobada != null) {
+                    System.out.println("Carta robada: " + cartaRobada);
+                    if (!colocarCartaEnFila(jugador, cartaRobada)) {
+                        System.out.println("No puedes colocar la carta. Lanzarás el dado y perderás tu turno.");
+                        jugador.lanzarDado(); // Lanzar dado si corresponde
+                        String colorSalido = jugador.getColorLanzado(); // Obtener el color salido
+                        System.out.println("El color que salió en el dado es: " + colorSalido);
+                        jugador.mostrarBotin(); // Mostrar nuevo botín
+                        turnoTerminado = true; // Terminar turno
+                    }
+                } else {
+                    turnoTerminado = true;
+                }
+            } else if (eleccion == 2) {
+                jugador.asegurarCartas();
+                jugador.mostrarBotin();
+                jugador.lanzarDado(); // Lanzar dado si corresponde
+                turnoTerminado = true;
+            }
         }
     }
 
-    private void asegurarCartas(Jugador jugador, Scanner scanner) {
-        System.out.println("Ingrese el color de las cartas a asegurar: ");
-        String color = scanner.nextLine();
-        jugador.asegurarCartas(color);
-        System.out.println("Cartas del color " + color + " aseguradas.");
-    }
 
-    private void terminarTurno(Jugador jugador, List<Fila> filasActivas) {
-        // Añadir filas activas al botín del jugador
-        for (Fila fila : filasActivas) {
-            jugador.addFila(fila);
+
+    private boolean colocarCartaEnFila(Jugador jugador, Carta carta) {
+        System.out.println("Fila 1: " + jugador.getFila(1));
+        System.out.println("Fila 2: " + jugador.getFila(2));
+        System.out.println("Fila 3: " + jugador.getFila(3));
+        System.out.print("En qué fila colocas la " + carta + " [1-3]? ");
+
+        int numFila = scanner.nextInt();
+        if (!jugador.agregarCartaAFila(carta, numFila)) {
+            return false; // No se puede colocar la carta en ninguna fila
         }
+
+        return true; // Se pudo colocar la carta
     }
 
-    private void manejarArriesgarse(Jugador jugador) {
-        // Implementar la lógica si el jugador se arriesga demasiado
-        // Perder cartas y repartir filas
-        System.out.println(jugador.getNombre() + " se ha arriesgado demasiado.");
-        // Lógica para perder cartas y repartir filas
-    }
+    private void finalizarJuego() {
+        System.out.println("Fin del juego");
 
-    private void calcularPuntos() {
-        // Calcular y mostrar los puntos finales
+        Jugador ganador = null;
+        int mayorPuntaje = 0;
+
         for (Jugador jugador : jugadores) {
-            int puntos = 0;
-            // Contar puntos de cartas en botín y aseguradas
-            System.out.println(jugador.getNombre() + " tiene " + puntos + " puntos.");
+            int puntos = jugador.calcularPuntos();
+            System.out.println("El botín de " + jugador.getNombre() + " tiene: " + puntos + " puntos.");
+            if (puntos > mayorPuntaje) {
+                mayorPuntaje = puntos;
+                ganador = jugador;
+            }
         }
-        // Determinar el ganador
-    }
 
-    private void mostrarFilas(List<Fila> filasActivas) {
-        for (int i = 0; i < filasActivas.size(); i++) {
-            Fila fila = filasActivas.get(i);
-            System.out.println("Fila " + (i + 1) + ": " + fila.getCartas());
+        if (ganador != null) {
+            System.out.println("El ganador es " + ganador.getNombre() + " con " + mayorPuntaje + " puntos.");
+        } else {
+            System.out.println("Hubo un empate.");
         }
     }
 }
+
+// Ultima version Bauti
